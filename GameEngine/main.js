@@ -6,6 +6,7 @@ ASSET_MANAGER.queueDownload("./sprites/ship/ship0.png");
 ASSET_MANAGER.queueDownload("./sprites/ship/ship1.png");
 ASSET_MANAGER.queueDownload("./sprites/ship/ship2.png");
 ASSET_MANAGER.queueDownload("./sprites/ship/ship3.png");
+ASSET_MANAGER.queueDownload("./sprites/ship/ship_rocket.png");
 ASSET_MANAGER.queueDownload("./sprites/munbig.png");
 
 ASSET_MANAGER.downloadAll(() => {
