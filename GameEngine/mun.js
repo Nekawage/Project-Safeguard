@@ -13,17 +13,19 @@ class Mun {
 
         this.state = 0; // 0 = full hp, 1 = slightly damaged, 2 = damaged, 3 = very damaged.
         this.dead = false;
+
+        this.BB = new BoundingCircle(this.x, this.y, this.width, this.height, this.width/2);
     }
 
     update() {
-
+        
     }
     
     draw(ctx) {
         if (this.game.options.debugging) {
             ctx.strokeStyle = 'red';
             ctx.beginPath();
-            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2.75, 0, Math.PI * 2);
+            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2, 0, Math.PI * 2);
             ctx.stroke();
         }
         this.animator.drawFrame(this.game.clockTick, ctx, this.x, this.y);

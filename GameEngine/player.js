@@ -9,30 +9,25 @@ class Player {
         this.game.Player = this;
 
         this.sprites = [];
-
-        // sprites for each damage state for player ship.
-        this.ship0 = ASSET_MANAGER.getAsset("./sprites/ship/ship0.png");
-        this.ship1 = ASSET_MANAGER.getAsset("./sprites/ship/ship1.png");
-        this.ship2 = ASSET_MANAGER.getAsset("./sprites/ship/ship2.png");
-        this.ship3 = ASSET_MANAGER.getAsset("./sprites/ship/ship3.png");
-
         this.loadSprites(this.sprites);
 
         this.state = 0; // 0 = full hp, 1 = slightly damaged, 2 = damaged, 3 = very damaged.
         this.dead = false;
         this.fireCD = 0.5;
+        this.invulSwitch = 0;
+        this.invulTimer = 0;
 
         this.velocity = {x: 0, y: 0};
-
-        //this.updateBB();
-
+        this.updateBB();
     }
+
     loadSprites(sprites) {
-        sprites[0] = new Animator(this.ship0, 0, 0, 48, 48, 1, 1);
-        sprites[1] = new Animator(this.ship1, 0, 0, 48, 48, 1, 1);
-        sprites[2] = new Animator(this.ship2, 0, 0, 48, 48, 1, 1);
-        sprites[3] = new Animator(this.ship3, 0, 0, 48, 48, 1, 1);
+        sprites[0] = new Animator(ASSET_MANAGER.getAsset("./sprites/ship/ship0.png"), 0, 0, 48, 48, 1, 1);
+        sprites[1] = new Animator(ASSET_MANAGER.getAsset("./sprites/ship/ship1.png"), 0, 0, 48, 48, 1, 1);
+        sprites[2] = new Animator(ASSET_MANAGER.getAsset("./sprites/ship/ship2.png"), 0, 0, 48, 48, 1, 1);
+        sprites[3] = new Animator(ASSET_MANAGER.getAsset("./sprites/ship/ship3.png"), 0, 0, 48, 48, 1, 1);
     }
+
     update() {
         const TICK = this.game.clockTick;
 
@@ -77,13 +72,29 @@ class Player {
                 this.shipNoseY() - PROJ_OFFSET * Math.sin(this.degreeToRadians(this.degree + 90)) - 16, 
                 this.degree))
             this.fireCD = 0.5;
-            console.log("Degree", this.degree)
-            console.log(("subtractX", Math.floor(Math.cos(this.degreeToRadians(this.degree + 90)))));
         }
 
         this.x += this.velocity.x * TICK;
         this.y += this.velocity.y * TICK;
         this.fireCD -= TICK;
+        this.updateLastBB();
+        this.updateBB();
+
+        var that = this;
+        this.game.entities.forEach(function (entity) {
+            if (entity.BB && entity instanceof Asteroid && that.BB.collide(entity.BB) && that.invulSwitch != 1 && that.state < 3) {
+                that.state += 1;
+                that.invulSwitch = 1;
+            }
+        });
+
+        if (this.invulSwitch === 1) {
+            this.invulTimer -= TICK;
+            if (this.invulTimer <= 0) {
+                this.invulSwitch = 0;
+                this.invulTimer = 3;
+            }
+        }
 
         if (this.velocity.x > MAX_SPEED) this.velocity.x = MAX_SPEED;
         if (this.velocity.y > MAX_SPEED) this.velocity.y = MAX_SPEED;
@@ -119,9 +130,18 @@ class Player {
     shipNoseX() {
         return (this.x + this.width / 2) + 24 * -Math.cos(this.degreeToRadians(this.degree + 90));
     }
+
     shipNoseY() {
         return (this.y + this.height / 2) + 24 * -Math.sin(this.degreeToRadians(this.degree + 90));
     }
+
+    updateBB() {
+        this.BB = new BoundingCircle(this.x, this.y, this.width, this.height, this.width / 2.75);
+    }
+
+    updateLastBB() {
+        this.lastBB = this.BB;
+    };
 }
 
 class Projectile {
@@ -137,6 +157,7 @@ class Projectile {
         this.velocity = {x: 20 * -Math.cos(this.degreeToRadians(this.degree + 90)), 
                          y: 20 * -Math.sin(this.degreeToRadians(this.degree + 90))};
         this.speed = 200;
+        this.updateBB();
     }
 
     update() {
@@ -155,13 +176,24 @@ class Projectile {
 
         if (this.x > 1056 || this.x < -32) this.removeFromWorld = true;
         if (this.y > 1056 || this.y < -32) this.removeFromWorld = true;
+
+        this.updateLastBB();
+        this.updateBB();
+
+        var that = this;
+        this.game.entities.forEach(function (entity) {
+            if (entity.BB && entity instanceof Asteroid && that.BB.collide(entity.BB)) {
+                entity.health -= 1;
+                that.removeFromWorld = true;
+            }
+        });
     }
 
     draw(ctx) {
         if (this.game.options.debugging) {
             ctx.strokeStyle = 'red';
             ctx.beginPath();
-            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2.75, 0, Math.PI * 2);
+            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2.5, 0, Math.PI * 2);
             ctx.stroke();
         }
         this.animator.drawFrame(this.game.clockTick, ctx, this.x, this.y, this.degreeToRadians(this.degree));
@@ -170,4 +202,12 @@ class Projectile {
     degreeToRadians(degrees) {
         return degrees * (Math.PI / 180);
     }
+
+    updateBB() {
+        this.BB = new BoundingCircle(this.x, this.y, this.width, this.height, this.width / 2.5);
+    }
+
+    updateLastBB() {
+        this.lastBB = this.BB;
+    };
 }
