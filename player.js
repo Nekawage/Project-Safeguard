@@ -1,4 +1,5 @@
 class Player {
+    // TODO: draw line from tip of ship to see shooting direction
     constructor(game, x, y) {
         Object.assign(this, {game, x, y});
 
@@ -15,7 +16,7 @@ class Player {
         this.dead = false;
         this.fireCD = 0.5;
         this.invulSwitch = 0;
-        this.invulTimer = 0;
+        this.invulTimer = 3; // invul time when hit.
 
         this.velocity = {x: 0, y: 0};
         this.updateBB();
@@ -82,13 +83,15 @@ class Player {
 
         var that = this;
         this.game.entities.forEach(function (entity) {
-            if (entity.BB && entity instanceof Asteroid && that.BB.collide(entity.BB) && that.invulSwitch != 1 && that.state < 3) {
-                that.state += 1;
-                that.invulSwitch = 1;
+            if (entity.BB && entity instanceof Asteroid && that.BB.collide(entity.BB) && that.invulSwitch != 1) {
+                if (that.state < 3) {
+                    that.state += 1;
+                    that.invulSwitch = 1;
+                } else that.dead = true;
             }
         });
 
-        if (this.invulSwitch === 1) {
+        if (this.invulSwitch === 1) { // if hit
             this.invulTimer -= TICK;
             if (this.invulTimer <= 0) {
                 this.invulSwitch = 0;

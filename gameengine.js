@@ -14,6 +14,8 @@ class GameEngine {
         this.mouse = null;
         this.wheel = null;
         this.keys = {};
+        this.ASTEROID_TIMER  = 0;
+        this.ASTEROID_SPAWN = 6;
 
         // Options and the Details
         this.options = options || {
@@ -43,9 +45,9 @@ class GameEngine {
         });
         
         this.ctx.canvas.addEventListener("mousemove", e => {
-            if (this.options.debugging) {
-                console.log("MOUSE_MOVE", getXandY(e));
-            }
+            // if (this.options.debugging) {
+            //     console.log("MOUSE_MOVE", getXandY(e));
+            // }
             this.mouse = getXandY(e);
         });
 
@@ -77,6 +79,9 @@ class GameEngine {
     };
 
     addEntity(entity) {
+        if (this.options.debugging) {
+            console.log("adding entity:" + entity);
+        }
         this.entities.push(entity);
     };
 
@@ -96,6 +101,29 @@ class GameEngine {
     };
 
     update() {
+		this.ASTEROID_TIMER += gameEngine.clockTick;
+		if (this.ASTEROID_TIMER >= this.ASTEROID_SPAWN) {
+            console.log("Trying to create Asteroid")
+			let side = Math.floor(Math.random() * 4); // 0 to 3
+			let rand = Math.floor(Math.random() * 1025); // 0 to 1024
+			switch (side) {
+				case 0: // top
+					this.addEntity(new Asteroid(this, rand, 0, Math.floor(Math.random() * 3), "TOP"));
+					break;
+				case 1: // right
+					this.addEntity(new Asteroid(this, 1024, rand, Math.floor(Math.random() * 3), "RIGHT"));
+					break;
+				case 2: // bottom
+					this.addEntity(new Asteroid(this, rand, 1024, Math.floor(Math.random() * 3), "BOTTOM"));
+					break;
+				case 3: // left
+					this.addEntity(new Asteroid(this, 0, rand, Math.floor(Math.random() * 3), "LEFT"));
+					break;
+			}
+            console.log("Asteroid Created")
+			this.ASTEROID_TIMER = 0;
+        }
+        
         let entitiesCount = this.entities.length;
 
         for (let i = 0; i < entitiesCount; i++) {

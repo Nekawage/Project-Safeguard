@@ -19,6 +19,7 @@ ASSET_MANAGER.queueDownload("./sprites/asteroid/asteroid_small3.png");
 ASSET_MANAGER.queueDownload("./sprites/asteroid/asteroid_small4.png");
 
 ASSET_MANAGER.downloadAll(() => {
+	// TODO: add sound effects?, powerups?, lives/health,
 	const canvas = document.getElementById("gameWorld");
 	const ctx = canvas.getContext("2d");
 	ctx.imageSmoothingEnabled = false; 
@@ -27,10 +28,13 @@ ASSET_MANAGER.downloadAll(() => {
 
 	gameEngine.addEntity(new Mun(gameEngine, 440, 440));
 	gameEngine.addEntity(new Player(gameEngine, 488, 280));
-	gameEngine.addEntity(new Asteroid(gameEngine, 700, 330, Math.floor(Math.random() * 3)));
-	gameEngine.addEntity(new Asteroid(gameEngine, 280, 470, Math.floor(Math.random() * 3)));
-	gameEngine.addEntity(new Asteroid(gameEngine, 420, 900, Math.floor(Math.random() * 3)));
-	gameEngine.addEntity(new Asteroid(gameEngine, 740, 600, Math.floor(Math.random() * 3)));
-
+	
+	// gameEngine.addEntity(new Asteroid(gameEngine, 700, 330, Math.floor(Math.random() * 3)));
+	// gameEngine.addEntity(new Asteroid(gameEngine, 280, 470, Math.floor(Math.random() * 3)));
+	// gameEngine.addEntity(new Asteroid(gameEngine, 420, 900, Math.floor(Math.random() * 3)));
+	// var test = new Asteroid(gameEngine, 740, 600, Math.floor(Math.random() * 3), "TOP");
+	// console.log(test);
+	// gameEngine.addEntity(test);
+	
 	gameEngine.start();
 });
