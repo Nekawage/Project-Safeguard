@@ -15,11 +15,12 @@ class GameEngine {
         this.wheel = null;
         this.keys = {};
         this.ASTEROID_TIMER  = 0;
-        this.ASTEROID_SPAWN = 6;
+        this.ASTEROID_SPAWN = 2;
 
         // Options and the Details
         this.options = options || {
-            debugging: true,
+            // debugging: true,
+            debugging: false,
         };
     };
 
