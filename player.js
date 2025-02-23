@@ -176,6 +176,7 @@ class Player {
 
     restartGame() {
         this.state = 0; 
+		this.degree = 0;
         this.dead = false;
         this.x = 488;
         this.y = 280;
