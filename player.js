@@ -1,5 +1,4 @@
 class Player {
-    // TODO: draw line from tip of ship to see shooting direction
     constructor(game, x, y) {
         Object.assign(this, {game, x, y});
 
@@ -38,9 +37,7 @@ class Player {
         const ROTATE = 180;
         const PROJ_OFFSET = 10;
 
-        //console.log(this.degree);
-        //console.log(this.x);
-        //console.log(this.y);
+        if (this.game.inMenu) return;
 
         if (this.game.keys['a'] && !this.game.keys['d'] && !this.dead) this.degree -= ROTATE * TICK;
         if (this.game.keys['d'] && !this.game.keys['a'] && !this.dead) this.degree += ROTATE * TICK;
@@ -92,25 +89,11 @@ class Player {
 
         var that = this;
         this.game.entities.forEach(function (entity) {
-            // if (entity.BB && entity instanceof Asteroid && that.BB.collide(entity.BB) && that.invulSwitch != 1) {
-            //     if (that.state < 3) {
-            //         that.state += 1;
-            //         that.invulSwitch = 1;
-            //     } else that.dead = true;
-            // }
             if (entity.BB && entity instanceof Asteroid && that.BB.collide(entity.BB)) {
                 that.dead = true;
                 that.state = 3;
             }
         });
-
-        // if (this.invulSwitch === 1) { // if hit
-        //     this.invulTimer -= TICK;
-        //     if (this.invulTimer <= 0) {
-        //         this.invulSwitch = 0;
-        //         this.invulTimer = 3;
-        //     }
-        // }
 
         if (this.velocity.x > MAX_SPEED) this.velocity.x = MAX_SPEED;
         if (this.velocity.y > MAX_SPEED) this.velocity.y = MAX_SPEED;
@@ -124,6 +107,29 @@ class Player {
 
     draw(ctx) {
         this.sprites[this.state].drawFrame(this.game.clockTick, ctx, this.x, this.y, this.degreeToRadians(this.degree));
+
+        if (!this.dead && !this.game.inMenu) {
+            const endX = this.shipNoseX() + 500 * -Math.cos(this.degreeToRadians(this.degree + 90));
+            const endY = this.shipNoseY() + 500 * -Math.sin(this.degreeToRadians(this.degree + 90));
+            
+            // Draw the line
+            ctx.beginPath();
+            ctx.moveTo(this.shipNoseX(), this.shipNoseY());
+            ctx.lineTo(endX, endY);
+            
+            // Create a dashed line
+            ctx.setLineDash([5, 5]);
+            
+            // Line color and width
+            ctx.strokeStyle = 'rgba(21, 255, 0, 0.7)';
+            ctx.lineWidth = 1.5;
+            
+            // Draw the line
+            ctx.stroke();
+            
+            // Reset line dash to solid for other drawings
+            ctx.setLineDash([]);
+        }
 
         if (this.dead) {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
@@ -145,7 +151,6 @@ class Player {
             ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2.75, 0, Math.PI * 2);
             ctx.stroke();
         }
-        // TODO: just have an animator for engine jet blast whatever and then draw it "behind" the ship w/ same rotation.
         if (this.game.options.debugging) {
             ctx.fillStyle = 'red';
             ctx.beginPath();
@@ -185,6 +190,8 @@ class Player {
                 entity.removeFromWorld = true;
             }
         });
+        this.game.inMenu = false;
+        this.game.score = 0;
     }
 }
 
@@ -198,8 +205,8 @@ class Projectile {
         this.spritesheet = ASSET_MANAGER.getAsset("./sprites/ship/ship_rocket.png");
         this.animator = new Animator(this.spritesheet, 0, 0, this.height, this.width, 3, 0.1);
 
-        this.velocity = {x: 20 * -Math.cos(this.degreeToRadians(this.degree + 90)), 
-                         y: 20 * -Math.sin(this.degreeToRadians(this.degree + 90))};
+        this.velocity = {x: 40 * -Math.cos(this.degreeToRadians(this.degree + 90)), 
+                         y: 40 * -Math.sin(this.degreeToRadians(this.degree + 90))};
         this.speed = 200;
         this.updateBB();
     }

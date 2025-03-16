@@ -1,5 +1,4 @@
 class Asteroid {
-    // TODO: asteroid "splits" into smaller size if health <= 0;
     constructor(game, x, y, size, side) {
         Object.assign(this, {game, x, y, size, side});
         console.log("side: " + this.side)
@@ -9,13 +8,13 @@ class Asteroid {
             case 0:
                 this.height = 128;
                 this.width = 128;
-                this.health = 5;
+                this.health = 3;
                 this.spriteindex = Math.floor(Math.random() * 2);
                 break;
             case 1:
                 this.height = 64;
                 this.width = 64;
-                this.health = 3;
+                this.health = 2;
                 this.spriteindex = Math.floor(Math.random() * 3);
                 break;
             case 2:
@@ -28,35 +27,35 @@ class Asteroid {
         switch (this.side) {
             case "TOP":
                 if (Math.floor(Math.random() * 2) == 0) {
-                    this.velocity.x = Math.floor(Math.random() * 50);
+                    this.velocity.x = Math.floor(Math.random() * 65);
                 } else {
-                    this.velocity.x = -Math.floor(Math.random() * 50);
+                    this.velocity.x = -Math.floor(Math.random() * 65);
                 }
-                this.velocity.y = Math.floor(Math.random() * 50);
+                this.velocity.y = Math.floor(Math.random() * 65);
                 break;
             case "RIGHT":
                 if (Math.floor(Math.random() * 2) == 0) {
-                    this.velocity.y = Math.floor(Math.random() * 50);
+                    this.velocity.y = Math.floor(Math.random() * 65);
                 } else {
-                    this.velocity.y = -Math.floor(Math.random() * 50);
+                    this.velocity.y = -Math.floor(Math.random() * 65);
                 }
-                this.velocity.x = -Math.floor(Math.random() * 50);
+                this.velocity.x = -Math.floor(Math.random() * 65);
                 break;
             case "BOTTOM":
                 if (Math.floor(Math.random() * 2) == 0) {
-                    this.velocity.x = Math.floor(Math.random() * 50);
+                    this.velocity.x = Math.floor(Math.random() * 65);
                 } else {
-                    this.velocity.x = -Math.floor(Math.random() * 50);
+                    this.velocity.x = -Math.floor(Math.random() * 65);
                 }
-                this.velocity.y = -Math.floor(Math.random() * 50);
+                this.velocity.y = -Math.floor(Math.random() * 65);
                 break;
             case "LEFT":
                 if (Math.floor(Math.random() * 2) == 0) {
-                    this.velocity.y = Math.floor(Math.random() * 50);
+                    this.velocity.y = Math.floor(Math.random() * 65);
                 } else {
-                    this.velocity.y = -Math.floor(Math.random() * 50);
+                    this.velocity.y = -Math.floor(Math.random() * 65);
                 }
-                this.velocity.x = Math.floor(Math.random() * 50);
+                this.velocity.x = Math.floor(Math.random() * 65);
                 break;
         }
         console.log("x vel: " + this.velocity.x + " y vel: " + this.velocity.y)
@@ -104,6 +103,22 @@ class Asteroid {
             this.rotate -= 1.5 * TICK;
         }
         if (this.health <= 0) {
+            switch (this.size) {
+                case 0: 
+                    this.game.score += 150;
+                    break;
+                case 1: 
+                    this.game.score += 100;
+                    break;
+                case 2: 
+                    this.game.score += 50;
+                    break;
+            }
+            this.removeFromWorld = true;
+        }
+        if (this.x > 1352 || this.x < -324) {
+            this.removeFromWorld = true;
+        } else if (this.y > 1324 || this.y < -128) {
             this.removeFromWorld = true;
         }
         this.x += this.game.clockTick * this.velocity.x; 
